@@ -23,13 +23,6 @@ class DialogWindow(Gtk.Window):
         self.add(button)
 
 
-def on_button_clicked(widget):
-
-    if internetRadio.is_playing():
-        internetRadio.stop()
-    else:
-        internetRadio.play_station(0)
-
 
 def display_preferences_dialog(action, applet):
     print("Preferences")
@@ -53,6 +46,14 @@ player_menu_verbs = [
 ]
 
 
+def on_play_button_clicked(widget):
+
+    if internetRadio.is_playing():
+        internetRadio.stop()
+    else:
+        internetRadio.play_station(0)
+
+
 def applet_fill(applet):
     action_group = Gtk.ActionGroup("Applet actions")
     action_group.add_actions(player_menu_verbs, applet)
@@ -61,7 +62,7 @@ def applet_fill(applet):
     settings_path = applet.get_preferences_path()
 
     button = Gtk.Button("Play")
-    button.connect("clicked", on_button_clicked)
+    button.connect("clicked", on_play_button_clicked)
     applet.add(button)
 
 
