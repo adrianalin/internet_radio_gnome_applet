@@ -10,6 +10,13 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import MatePanelApplet
 
+
+class PlayerApplet:
+    def __init__(self, mate_applet):
+        self.applet = mate_applet
+        self.preference_window = None
+
+
 class DialogWindow(Gtk.Window):
 
     def __init__(self):
@@ -23,10 +30,25 @@ class DialogWindow(Gtk.Window):
         self.add(button)
 
 
+def on_done_button_clicked(button, player_applet: PlayerApplet):
+    player_applet.preference_window.destroy()
+    player_applet.preference_window = None
+    print('on button clicked')
 
-def display_preferences_dialog(action, applet):
+
+def display_preferences_dialog(action, player_applet: PlayerApplet):
     print("Preferences")
+    if player_applet.preference_window is not None:
+        player_applet.preference_window.show_all()
+        return
 
+    builder = Gtk.Builder()
+    builder.add_from_file("preferences.ui")
+    button = builder.get_object("done_button")
+    button.connect("clicked", on_done_button_clicked, player_applet)
+    window = builder.get_object("player_preferences_dialog")
+    window.show_all()
+    player_applet.preference_window = window
 
 def display_help_dialog(action, applet):
     print("Help")
@@ -54,25 +76,25 @@ def on_play_button_clicked(widget):
         internetRadio.play_station(0)
 
 
-def applet_fill(applet):
+def applet_fill(player_applet):
     action_group = Gtk.ActionGroup("Applet actions")
-    action_group.add_actions(player_menu_verbs, applet)
-    applet.setup_menu_from_file("menu.xml", action_group)
+    action_group.add_actions(player_menu_verbs, player_applet)
+    player_applet.applet.setup_menu_from_file("menu.xml", action_group)
 
-    settings_path = applet.get_preferences_path()
+    settings_path = player_applet.applet.get_preferences_path()
 
     button = Gtk.Button("Play")
     button.connect("clicked", on_play_button_clicked)
-    applet.add(button)
+    player_applet.applet.add(button)
 
-
-    applet.show_all()
+    player_applet.applet.show_all()
 
 
 def applet_factory(applet, iid, data):
     if iid != "InternetRadio":
        return False
-    applet_fill(applet)
+    player_applet = PlayerApplet(applet)
+    applet_fill(player_applet)
     return True
 
 
