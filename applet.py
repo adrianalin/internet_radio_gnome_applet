@@ -70,13 +70,13 @@ def applet_fill(applet):
 
 
 def applet_factory(applet, iid, data):
-    if iid != "TestApplet":
+    if iid != "InternetRadio":
        return False
     applet_fill(applet)
     return True
 
 
 
-MatePanelApplet.Applet.factory_main("TestAppletFactory", True,
+MatePanelApplet.Applet.factory_main("InternetRadioAppletFactory", True,
                                     MatePanelApplet.Applet.__gtype__,
                                     applet_factory, None)

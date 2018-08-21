@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=org.mate.panel.applet.InternetRadioAppletFactory
+Exec=/home/adrian/PythonProjects/internet_radio_applet/applet.py
+
+

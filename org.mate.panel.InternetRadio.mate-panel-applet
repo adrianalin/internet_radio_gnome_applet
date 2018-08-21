@@ -1,0 +1,12 @@
+[Applet Factory]
+Id=InternetRadioAppletFactory
+InProcess=false
+Location=/home/adrian/PythonProjects/internet_radio_applet/applet.py
+Name=Internet radio applet factory
+Description=A MATE Python Applet for playing internet radio
+     
+[InternetRadio]
+Name=InternetRadio
+Description=A MATE Python Applet for playing internet radio
+Icon=mate
+MateComponentId=OAFIID:MATE_InternetRadio;
