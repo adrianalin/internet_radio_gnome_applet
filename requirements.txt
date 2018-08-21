@@ -1,0 +1,4 @@
+tinytag
+sounddevice
+requests
+numpy

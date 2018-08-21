@@ -1,0 +1,3 @@
+<menuitem name="Fish Preferences Item" action="PlayerPreferences"/>
+<menuitem name="Fish Help Item" action="PlayerHelp"/>
+<menuitem name="Fish About Item" action="PlayerAbout"/>
