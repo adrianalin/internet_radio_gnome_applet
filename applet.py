@@ -11,10 +11,40 @@ from gi.repository import Gtk, Gio
 from gi.repository import MatePanelApplet
 
 
+class Preferences:
+
+    def __init__(self):
+        self.preference_builder = Gtk.Builder()
+        self.preference_builder.add_from_file("preferences.ui")
+
+        done_button = self.preference_builder.get_object("done_button")
+        done_button.connect("clicked", self.on_done_button_clicked)
+
+        set_stream_button = self.preference_builder.get_object("set_stream_button")
+        set_stream_button.connect("clicked", self.on_set_stream_button_clicked)
+
+    def on_done_button_clicked(self, button):
+        self.hide()
+
+    def on_set_stream_button_clicked(self, button):
+        station_name = self.preference_builder.get_object("name_entry").get_text()
+        stream_url = self.preference_builder.get_object("stream_url_entry").get_text()
+        if not station_name or not stream_url:
+            return
+        station = internetRadio.StationDef(station_name, stream_url)
+        internetRadio.play_station(station)
+
+    def show(self):
+        self.preference_builder.get_object("player_preferences_dialog").show_all()
+
+    def hide(self):
+        self.preference_builder.get_object("player_preferences_dialog").hide()
+
+
 class PlayerApplet:
     def __init__(self, mate_applet):
         self.applet = mate_applet
-        self.preference_builder = None
+        self.preference = None
 
 
 class DialogWindow(Gtk.Window):
@@ -30,34 +60,10 @@ class DialogWindow(Gtk.Window):
         self.add(button)
 
 
-def on_done_button_clicked(button, player_applet: PlayerApplet):
-    player_applet.preference_builder.get_object("player_preferences_dialog").close()
-
-
-def on_set_stream_button_clicked(button, player_applet: PlayerApplet):
-    station_name = player_applet.preference_builder.get_object("name_entry").get_text()
-    stream_url = player_applet.preference_builder.get_object("stream_url_entry").get_text()
-    station = internetRadio.StationDef(station_name, stream_url)
-    internetRadio.play_station(station)
-
-
 def display_preferences_dialog(action, player_applet: PlayerApplet):
-    if player_applet.preference_builder is not None:
-        player_applet.preference_builder.get_object("player_preferences_dialog").show_all()
-        return
-
-    builder = Gtk.Builder()
-    builder.add_from_file("preferences.ui")
-
-    done_button = builder.get_object("done_button")
-    done_button.connect("clicked", on_done_button_clicked, player_applet)
-
-    set_stream_button = builder.get_object("set_stream_button")
-    set_stream_button.connect("clicked", on_set_stream_button_clicked, player_applet)
-
-    window = builder.get_object("player_preferences_dialog")
-    window.show_all()
-    player_applet.preference_builder = builder
+    if player_applet.preference is None:
+        player_applet.preference = Preferences()
+    player_applet.preference.show()
 
 
 def display_help_dialog(action, applet):
