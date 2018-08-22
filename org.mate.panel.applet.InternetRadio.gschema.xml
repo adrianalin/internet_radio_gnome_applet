@@ -1,0 +1,9 @@
+<schemalist gettext-domain="mate-panel">
+    <schema id="org.mate.panel.applet.InternetRadio"  path="/org/mate/panel/applet/internet-radio/">
+        <key name="radio-stations" type="as">
+            <default>['Soma fm', 'http://ice1.somafm.com/indiepop-128-aac']</default>
+            <summary>Saved radio stations</summary>
+            <description>Saved radio stations for the internet radio applet</description>
+        </key>
+    </schema>
+</schemalist>

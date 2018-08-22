@@ -7,13 +7,22 @@ import gi
 gi.require_version('MatePanelApplet', '4.0')
 gi.require_version("Gtk", "3.0")
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, GLib
 from gi.repository import MatePanelApplet
+
+from itertools import chain
+
+
+RADIO_SCHEMA = 'org.mate.panel.applet.InternetRadio'
+RADIO_LIST_KEY = 'radio-stations'
 
 
 class Preferences:
 
     def __init__(self):
+        self.stations = []
+        self.settings = Gio.Settings(RADIO_SCHEMA)
+
         self.preference_builder = Gtk.Builder()
         self.preference_builder.add_from_file("preferences.ui")
 
@@ -22,6 +31,16 @@ class Preferences:
 
         set_stream_button = self.preference_builder.get_object("set_stream_button")
         set_stream_button.connect("clicked", self.on_set_stream_button_clicked)
+        self.load_preferences()
+
+    def load_preferences(self):
+        settings_list = self.settings.get_value(RADIO_LIST_KEY).unpack()
+        it = iter(settings_list)
+        self.stations = [internetRadio.StationDef(name, url) for name, url in zip(it, it)]
+
+    def save_preferences(self):
+        settings_list = list(chain.from_iterable(self.stations))
+        self.settings.set_value(RADIO_LIST_KEY, GLib.Variant('as', settings_list))
 
     def on_done_button_clicked(self, button):
         self.hide()
@@ -31,10 +50,16 @@ class Preferences:
         stream_url = self.preference_builder.get_object("stream_url_entry").get_text()
         if not station_name or not stream_url:
             return
+
         station = internetRadio.StationDef(station_name, stream_url)
         internetRadio.play_station(station)
+        self.stations.append(station)
+        self.save_preferences()
 
     def show(self):
+        recent_station = self.stations[-1]
+        self.preference_builder.get_object("name_entry").set_text(recent_station.station_name)
+        self.preference_builder.get_object("stream_url_entry").set_text(recent_station.stream_url)
         self.preference_builder.get_object("player_preferences_dialog").show_all()
 
     def hide(self):
@@ -63,7 +88,7 @@ class DialogWindow(Gtk.Window):
 class Menu:
 
     def __init__(self):
-        self.preference = None
+        self.preference = Preferences()
         self.player_menu_verbs = [
             ("PlayerPreferences", "document-properties", "_Preferences",
              None, None, self.display_preferences_dialog),
@@ -79,8 +104,6 @@ class Menu:
         applet.setup_menu_from_file("menu.xml", self.action_group)
 
     def display_preferences_dialog(self, action):
-        if self.preference is None:
-            self.preference = Preferences()
         self.preference.show()
 
     def display_help_dialog(self, action):
@@ -90,7 +113,7 @@ class Menu:
         DialogWindow().show_all()
 
 
-def on_play_button_clicked(button):
+def on_play_button_clicked(button, player_applet):
 
     if internetRadio.is_playing():
         icon = Gio.ThemedIcon(name="media-playback-start")
@@ -101,7 +124,8 @@ def on_play_button_clicked(button):
         icon = Gio.ThemedIcon(name="media-playback-stop")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         button.set_image(image)
-        internetRadio.play_station(0)
+        last_station = player_applet.menu.preference.stations[-1]
+        internetRadio.play_station(last_station)
 
 
 def applet_fill(player_applet):
@@ -111,7 +135,7 @@ def applet_fill(player_applet):
     settings_path = player_applet.applet.get_preferences_path()
 
     button = Gtk.Button()
-    button.connect("clicked", on_play_button_clicked)
+    button.connect("clicked", on_play_button_clicked, player_applet)
     icon = Gio.ThemedIcon(name="media-playback-start")
     image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON + 0.9)
     button.set_image(image)
