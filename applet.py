@@ -7,7 +7,7 @@ import gi
 gi.require_version('MatePanelApplet', '4.0')
 gi.require_version("Gtk", "3.0")
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio
 from gi.repository import MatePanelApplet
 
 
@@ -78,11 +78,17 @@ player_menu_verbs = [
 ]
 
 
-def on_play_button_clicked(widget):
+def on_play_button_clicked(button):
 
     if internetRadio.is_playing():
+        icon = Gio.ThemedIcon(name="media-playback-start")
+        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
+        button.set_image(image)
         internetRadio.stop()
     else:
+        icon = Gio.ThemedIcon(name="media-playback-stop")
+        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
+        button.set_image(image)
         internetRadio.play_station(0)
 
 
@@ -93,10 +99,13 @@ def applet_fill(player_applet):
 
     settings_path = player_applet.applet.get_preferences_path()
 
-    button = Gtk.Button("Play")
+    button = Gtk.Button()
     button.connect("clicked", on_play_button_clicked)
-    player_applet.applet.add(button)
+    icon = Gio.ThemedIcon(name="media-playback-start")
+    image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON + 0.9)
+    button.set_image(image)
 
+    player_applet.applet.add(button)
     player_applet.applet.show_all()
 
 
