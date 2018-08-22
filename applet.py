@@ -44,7 +44,7 @@ class Preferences:
 class PlayerApplet:
     def __init__(self, mate_applet):
         self.applet = mate_applet
-        self.preference = None
+        self.menu = None
 
 
 class DialogWindow(Gtk.Window):
@@ -60,28 +60,34 @@ class DialogWindow(Gtk.Window):
         self.add(button)
 
 
-def display_preferences_dialog(action, player_applet: PlayerApplet):
-    if player_applet.preference is None:
-        player_applet.preference = Preferences()
-    player_applet.preference.show()
+class Menu:
 
+    def __init__(self):
+        self.preference = None
+        self.player_menu_verbs = [
+            ("PlayerPreferences", "document-properties", "_Preferences",
+             None, None, self.display_preferences_dialog),
+            ("PlayerHelp", "help-browser", "_Help",
+             None, None, self.display_help_dialog),
+            ("PlayerAbout", "help-about", "_About",
+             None, None, self.display_about_dialog),
+        ]
+        self.action_group = Gtk.ActionGroup("Applet actions")
+        self.action_group.add_actions(self.player_menu_verbs)
 
-def display_help_dialog(action, applet):
-    print("Help")
+    def setup_menu(self, applet):
+        applet.setup_menu_from_file("menu.xml", self.action_group)
 
+    def display_preferences_dialog(self, action):
+        if self.preference is None:
+            self.preference = Preferences()
+        self.preference.show()
 
-def display_about_dialog(action, applet):
-    DialogWindow().show_all()
+    def display_help_dialog(self, action):
+        print("Help")
 
-
-player_menu_verbs = [
-    ("PlayerPreferences", "document-properties", "_Preferences",
-     None, None, display_preferences_dialog),
-    ("PlayerHelp", "help-browser", "_Help",
-    None, None, display_help_dialog),
-    ("PlayerAbout", "help-about", "_About",
-     None, None, display_about_dialog),
-]
+    def display_about_dialog(self, action):
+        DialogWindow().show_all()
 
 
 def on_play_button_clicked(button):
@@ -99,9 +105,8 @@ def on_play_button_clicked(button):
 
 
 def applet_fill(player_applet):
-    action_group = Gtk.ActionGroup("Applet actions")
-    action_group.add_actions(player_menu_verbs, player_applet)
-    player_applet.applet.setup_menu_from_file("menu.xml", action_group)
+    player_applet.menu = Menu()
+    player_applet.menu.setup_menu(player_applet.applet)
 
     settings_path = player_applet.applet.get_preferences_path()
 
