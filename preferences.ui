@@ -211,7 +211,7 @@
             </child>
             <child>
               <object class="GtkButton" id="set_stream_button">
-                <property name="label" translatable="yes">Set stream</property>
+                <property name="label" translatable="yes">Play stream</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>

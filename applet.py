@@ -14,7 +14,7 @@ from gi.repository import MatePanelApplet
 class PlayerApplet:
     def __init__(self, mate_applet):
         self.applet = mate_applet
-        self.preference_window = None
+        self.preference_builder = None
 
 
 class DialogWindow(Gtk.Window):
@@ -31,24 +31,34 @@ class DialogWindow(Gtk.Window):
 
 
 def on_done_button_clicked(button, player_applet: PlayerApplet):
-    player_applet.preference_window.destroy()
-    player_applet.preference_window = None
-    print('on button clicked')
+    player_applet.preference_builder.get_object("player_preferences_dialog").close()
+
+
+def on_set_stream_button_clicked(button, player_applet: PlayerApplet):
+    station_name = player_applet.preference_builder.get_object("name_entry").get_text()
+    stream_url = player_applet.preference_builder.get_object("stream_url_entry").get_text()
+    station = internetRadio.StationDef(station_name, stream_url)
+    internetRadio.play_station(station)
 
 
 def display_preferences_dialog(action, player_applet: PlayerApplet):
-    print("Preferences")
-    if player_applet.preference_window is not None:
-        player_applet.preference_window.show_all()
+    if player_applet.preference_builder is not None:
+        player_applet.preference_builder.get_object("player_preferences_dialog").show_all()
         return
 
     builder = Gtk.Builder()
     builder.add_from_file("preferences.ui")
-    button = builder.get_object("done_button")
-    button.connect("clicked", on_done_button_clicked, player_applet)
+
+    done_button = builder.get_object("done_button")
+    done_button.connect("clicked", on_done_button_clicked, player_applet)
+
+    set_stream_button = builder.get_object("set_stream_button")
+    set_stream_button.connect("clicked", on_set_stream_button_clicked, player_applet)
+
     window = builder.get_object("player_preferences_dialog")
     window.show_all()
-    player_applet.preference_window = window
+    player_applet.preference_builder = builder
+
 
 def display_help_dialog(action, applet):
     print("Help")

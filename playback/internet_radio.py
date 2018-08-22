@@ -145,31 +145,31 @@ class AudioDecoder:
 
 
 class Internetradio:
-    StationDef = namedtuple("StationDef", ["station_name", "stream_name", "icon_url", "stream_url"])
+    StationDef = namedtuple("StationDef", ["station_name", "stream_url"])
     stations = [
-        StationDef("Soma FM", "Groove Salad",
-                   "http://somafm.com/img/groovesalad120.png",
-                   "http://ice3.somafm.com/groovesalad-64-aac"),
-        StationDef("Soma FM", "Secret Agent",
-                   "http://somafm.com/img/secretagent120.jpg",
-                   "http://ice3.somafm.com/secretagent-64-aac"),
-        StationDef("University of Calgary", "CJSW-FM",
-                   "https://upload.wikimedia.org/wikipedia/en/thumb/0/0e/CJSW-FM.svg/220px-CJSW-FM.svg.png",
-                   "http://stream.cjsw.com:80/cjsw.ogg"),
-        StationDef("Playtrance.com", "Trance",
-                   "http://facilmediamundial.com/wp-content/uploads/2017/09/trance-200.png",
-                   "http://live.playtrance.com:8000/playtrance-livetech.aac")
+        StationDef("Soma FM", "http://ice3.somafm.com/groovesalad-64-aac"),
+        StationDef("Soma FM", "http://ice3.somafm.com/secretagent-64-aac"),
+        StationDef("University of Calgary", "http://stream.cjsw.com:80/cjsw.ogg"),
+        StationDef("Playtrance.com", "http://live.playtrance.com:8000/playtrance-livetech.aac")
     ]
 
     def __init__(self):
         self.song_title = "..."
         self.play_thread = None
+        self.stream_name_label = None
+        self.icyclient = None
+        self.decoder = None
 
-    def play_station(self, index):
-        station = self.stations[index]
+    def play_station(self, st):
+        station = None
+        if isinstance(st, self.StationDef):
+            station = st
+        elif isinstance(st, int):
+            station = self.stations[st]
+
         if self.is_playing():
             self.stop()
-        self.stream_name_label = "{} | {}".format(station.station_name, station.stream_name)
+        self.stream_name_label = "{}".format(station.station_name)
         self.icyclient = IceCastClient(station.stream_url, 8192)
         self.decoder = AudioDecoder(self.icyclient, self.set_song_title)
         self.set_song_title("...")
@@ -180,12 +180,13 @@ class Internetradio:
         self.song_title = title
 
     def is_playing(self):
-        return self.play_thread != None
+        return self.play_thread is not None
 
     def stop(self):
         self.song_title = "(stoping...)"
         self.icyclient.stop_streaming()
-        #self.decoder.stop_playback()   # this doesn't work properly on Windows, it hangs. Therefore we close the http stream.
+        # this doesn't work properly on Windows, it hangs. Therefore we close the http stream.
+        # self.decoder.stop_playback()
         self.decoder = None
         self.play_thread.join()
         self.play_thread = None
