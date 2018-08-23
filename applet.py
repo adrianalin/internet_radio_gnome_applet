@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from playback.internet_radio import internetRadio
 
@@ -25,7 +25,8 @@ class Preferences:
         self.settings = Gio.Settings(RADIO_SCHEMA)
 
         self.preference_builder = Gtk.Builder()
-        self.preference_builder.add_from_file("preferences.ui")
+        # need to set full path here otherwise the resource file will not be found when autorunnng the applet
+        self.preference_builder.add_from_file("/home/adrian/PythonProjects/internet_radio_applet/preferences.ui")
 
         done_button = self.preference_builder.get_object("done_button")
         done_button.connect("clicked", self.on_done_button_clicked)
@@ -102,7 +103,8 @@ class Menu:
         self.action_group.add_actions(self.player_menu_verbs)
 
     def setup_menu(self, applet):
-        applet.setup_menu_from_file("menu.xml", self.action_group)
+        # need to set full resource file path here
+        applet.setup_menu_from_file("/home/adrian/PythonProjects/internet_radio_applet/menu.xml", self.action_group)
 
     def display_preferences_dialog(self, action):
         self.preference.show()
@@ -146,6 +148,7 @@ def applet_fill(player_applet):
 def applet_factory(applet, iid, data):
     if iid != "InternetRadio":
        return False
+    print('---Starting InternetRadio applet---\n')
     player_applet = PlayerApplet(applet)
     applet_fill(player_applet)
     return True
