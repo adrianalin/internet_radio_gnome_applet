@@ -118,12 +118,12 @@ def on_play_button_clicked(button, player_applet):
 
     if internetRadio.is_playing():
         icon = Gio.ThemedIcon(name="media-playback-start")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
+        image = Gtk.Image.new_from_gicon(icon, 3)
         button.set_image(image)
         internetRadio.stop()
     else:
         icon = Gio.ThemedIcon(name="media-playback-stop")
-        image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
+        image = Gtk.Image.new_from_gicon(icon, 3)
         button.set_image(image)
         last_station = player_applet.menu.preference.stations[-1]
         internetRadio.play_station(last_station)
@@ -133,13 +133,11 @@ def applet_fill(player_applet):
     player_applet.menu = Menu()
     player_applet.menu.setup_menu(player_applet.applet)
 
+    # you can use this path with gio/gsettings
     settings_path = player_applet.applet.get_preferences_path()
 
-    button = Gtk.Button()
+    button = Gtk.Button.new_from_icon_name("media-playback-start", 3)
     button.connect("clicked", on_play_button_clicked, player_applet)
-    icon = Gio.ThemedIcon(name="media-playback-start")
-    image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON + 0.9)
-    button.set_image(image)
 
     player_applet.applet.add(button)
     player_applet.applet.show_all()
