@@ -11,6 +11,7 @@ from gi.repository import Gtk, Gio, GLib
 from gi.repository import MatePanelApplet
 
 from itertools import chain
+from collections import deque
 
 
 RADIO_SCHEMA = 'org.mate.panel.applet.InternetRadio'
@@ -20,7 +21,7 @@ RADIO_LIST_KEY = 'radio-stations'
 class Preferences:
 
     def __init__(self):
-        self.stations = []
+        self.stations = deque(maxlen=3)
         self.settings = Gio.Settings(RADIO_SCHEMA)
 
         self.preference_builder = Gtk.Builder()
@@ -36,7 +37,7 @@ class Preferences:
     def load_preferences(self):
         settings_list = self.settings.get_value(RADIO_LIST_KEY).unpack()
         it = iter(settings_list)
-        self.stations = [internetRadio.StationDef(name, url) for name, url in zip(it, it)]
+        self.stations.extend(internetRadio.StationDef(name, url) for name, url in zip(it, it))
 
     def save_preferences(self):
         settings_list = list(chain.from_iterable(self.stations))
