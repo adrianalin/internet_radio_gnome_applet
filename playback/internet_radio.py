@@ -159,6 +159,7 @@ class Internetradio:
         self.stream_name_label = None
         self.icyclient = None
         self.decoder = None
+        self.song_title_callback = None
 
     def play_station(self, st):
         station = None
@@ -178,12 +179,16 @@ class Internetradio:
 
     def set_song_title(self, title):
         self.song_title = title
+        self.song_title_callback(title)
+
+    def set_song_title_callback(self, callback):
+        self.song_title_callback = callback
 
     def is_playing(self):
         return self.play_thread is not None
 
     def stop(self):
-        self.song_title = "(stoping...)"
+        self.set_song_title("Stopped")
         self.icyclient.stop_streaming()
         # this doesn't work properly on Windows, it hangs. Therefore we close the http stream.
         # self.decoder.stop_playback()

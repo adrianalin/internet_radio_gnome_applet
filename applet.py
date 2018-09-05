@@ -72,6 +72,10 @@ class PlayerApplet:
     def __init__(self, mate_applet):
         self.applet = mate_applet
         self.menu = None
+        self.button = None
+
+    def set_song_title(self, title: str):
+        self.button.set_tooltip_text(title)
 
 
 class DialogWindow(Gtk.Window):
@@ -139,8 +143,11 @@ def applet_fill(player_applet):
     settings_path = player_applet.applet.get_preferences_path()
 
     button = Gtk.Button.new_from_icon_name("media-playback-start", 3)
+    button.set_tooltip_text("Play")
     button.connect("clicked", on_play_button_clicked, player_applet)
 
+    player_applet.button = button
+    internetRadio.set_song_title_callback(player_applet.set_song_title)
     player_applet.applet.add(button)
     player_applet.applet.show_all()
 
