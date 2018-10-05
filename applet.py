@@ -28,6 +28,9 @@ class Preferences:
         # need to set full path here otherwise the resource file will not be found when autorunnng the applet
         self.preference_builder.add_from_file("/home/adrian/PythonProjects/internet_radio_applet/preferences.ui")
 
+        dialog = self.preference_builder.get_object("player_preferences_dialog")
+        # dialog.connect("delete-event", self.on_done_button_clicked)
+
         done_button = self.preference_builder.get_object("done_button")
         done_button.connect("clicked", self.on_done_button_clicked)
 
@@ -69,7 +72,7 @@ class Preferences:
 
 
 class PlayerApplet:
-    def __init__(self, mate_applet):
+    def __init__(self, mate_applet: MatePanelApplet):
         self.applet = mate_applet
         self.menu = None
         self.button = None
@@ -109,6 +112,7 @@ class Menu:
     def setup_menu(self, applet):
         # need to set full resource file path here
         applet.setup_menu_from_file("/home/adrian/PythonProjects/internet_radio_applet/menu.xml", self.action_group)
+
 
     def display_preferences_dialog(self, action):
         self.preference.show()
@@ -152,7 +156,7 @@ def applet_fill(player_applet):
     player_applet.applet.show_all()
 
 
-def applet_factory(applet, iid, data):
+def applet_factory(applet: MatePanelApplet, iid, data):
     if iid != "InternetRadio":
        return False
     print('---Starting InternetRadio applet---\n')
